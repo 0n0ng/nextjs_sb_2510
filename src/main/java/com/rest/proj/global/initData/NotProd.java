@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 // 배포할 땐 필요없음 : NotProd
 @Configuration
 @Profile({"dev", "test"})
-public class NotPord {
+public class NotProd {
     @Bean
     CommandLineRunner initData(ArticleService articleService) {
         return args -> {
