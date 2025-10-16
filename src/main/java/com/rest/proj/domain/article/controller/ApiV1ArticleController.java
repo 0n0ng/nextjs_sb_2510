@@ -3,13 +3,13 @@ package com.rest.proj.domain.article.controller;
 import com.rest.proj.domain.article.entity.Article;
 import com.rest.proj.domain.article.service.ArticleService;
 import com.rest.proj.global.rsdata.RsData;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +27,7 @@ public class ApiV1ArticleController {
 
     /**
      * 모든 게시글 목록을 조회합니다.
+     *
      * @return 게시글 목록을 포함하는 RsData 객체
      */
     @GetMapping
@@ -46,6 +47,7 @@ public class ApiV1ArticleController {
 
     /**
      * 특정 ID의 게시글을 조회합니다.
+     *
      * @param id 조회할 게시글의 ID
      * @return 해당 게시글 정보를 포함하는 RsData 객체. 게시글이 없으면 실패 응답을 반환합니다.
      */
@@ -61,5 +63,34 @@ public class ApiV1ArticleController {
                         "%d번 게시물은 존재하지 않습니다.".formatted(id),
                         null
                 ));
+    }
+
+    @Data
+    public static class WriteRequest {
+        @NotBlank
+        private String subject;
+
+        @NotBlank
+        private String content;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class WriteResponse {
+        private final Article article;
+    }
+
+    @PostMapping("")
+    public RsData<WriteResponse> write(@Valid @RequestBody WriteRequest writeRequest) {
+        RsData<Article> writeRs = articleService.create(writeRequest.getSubject(), writeRequest.getContent());
+        System.out.println(writeRequest.getSubject());
+
+        if (writeRs.isFail()) return (RsData) writeRs;
+
+        return RsData.of(
+                writeRs.getResultCode(),
+                writeRs.getMsg(),
+                new WriteResponse(writeRs.getData())
+        );
     }
 }

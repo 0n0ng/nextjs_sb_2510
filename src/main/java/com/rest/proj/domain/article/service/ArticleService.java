@@ -2,6 +2,8 @@ package com.rest.proj.domain.article.service;
 
 import com.rest.proj.domain.article.entity.Article;
 import com.rest.proj.domain.article.repository.ArticleRepository;
+import com.rest.proj.global.rsdata.RsData;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,9 @@ public class ArticleService {
      * @param subject 제목
      * @param content 내용
      */
-    public void create(String subject, String content) {
+    @Transactional // 한 세트로 처리되는 작업의 묶음, 중간에 실패면 모두 실패
+    // 없다면 중간중간 빠진 데이터가 db에 저장 될 수 있어 꼬일 수 있다.
+    public RsData<Article> create(String subject, String content) {
         // Article 객체를 생성합니다.
         Article article = Article.builder()
                 .subject(subject)
@@ -30,6 +34,12 @@ public class ArticleService {
 
         // 생성된 Article 객체를 저장소에 저장합니다.
         articleRepository.save(article);
+
+        return RsData.of(
+                "S-2",
+                "게시물이 생성되었습니다.",
+                article
+        );
     }
 
     /**
