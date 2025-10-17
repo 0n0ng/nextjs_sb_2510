@@ -25,17 +25,10 @@ public class ApiV1ArticleController {
         private final List<Article> articles;
     }
 
-    /**
-     * 모든 게시글 목록을 조회합니다.
-     *
-     * @return 게시글 목록을 포함하는 RsData 객체
-     */
     @GetMapping
     public RsData<ArticlesResponse> getArticles() {
-        // ArticleService를 통해 전체 게시글 리스트를 가져옵니다.
         List<Article> articles = articleService.getList();
 
-        // 성공 응답을 생성하여 반환합니다.
         return RsData.of("S-1", "성공", new ArticlesResponse(articles));
     }
 
@@ -45,24 +38,17 @@ public class ApiV1ArticleController {
         private final Article article;
     }
 
-    /**
-     * 특정 ID의 게시글을 조회합니다.
-     *
-     * @param id 조회할 게시글의 ID
-     * @return 해당 게시글 정보를 포함하는 RsData 객체. 게시글이 없으면 실패 응답을 반환합니다.
-     */
     @GetMapping("/{id}")
     public RsData<ArticleResponse> getArticle(@PathVariable("id") Long id) {
         return articleService.getArticle(id).map(article -> RsData.of(
-                        "S-1",
-                        "성공",
-                        new ArticleResponse(article)
-                ))
-                .orElseGet(() -> RsData.of(
-                        "F-1",
-                        "%d번 게시물은 존재하지 않습니다.".formatted(id),
-                        null
-                ));
+                "S-1",
+                "성공",
+                new ArticleResponse(article)
+        )).orElseGet(() -> RsData.of(
+                "F-1",
+                "%d번 게시물은 존재하지 않습니다.".formatted(id),
+                null
+        ));
     }
 
     @Data
@@ -78,14 +64,14 @@ public class ApiV1ArticleController {
     @AllArgsConstructor
     public static class WriteResponse {
         private final Article article;
+
     }
 
     @PostMapping("")
     public RsData<WriteResponse> write(@Valid @RequestBody WriteRequest writeRequest) {
         RsData<Article> writeRs = articleService.create(writeRequest.getSubject(), writeRequest.getContent());
-        System.out.println(writeRequest.getSubject());
 
-        if (writeRs.isFail()) return (RsData) writeRs;
+        if ( writeRs.isFail() ) return (RsData) writeRs;
 
         return RsData.of(
                 writeRs.getResultCode(),
