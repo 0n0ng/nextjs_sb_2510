@@ -1,9 +1,9 @@
-'use client'
-import { useParams } from "next/navigation"
+"use client";
 
-export default function() {
-    const params = useParams();
-    console.log(params);
+import { useParams } from "next/navigation";
 
-    return <>게시판 상세 {params.id}</>
+export default function ArticleDetail() {
+  const params = useParams();
+
+  return  <>게시판 상세 {params.id}번</>
 }
