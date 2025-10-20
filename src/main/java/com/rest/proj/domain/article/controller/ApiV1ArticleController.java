@@ -105,13 +105,38 @@ public class ApiV1ArticleController {
                 "%d번 게시물은 존재하지 않습니다.".formatted(id)
         );
 
-        /// 회원 권한
+        /// 회원 권한 canModify
         RsData<Article> modifyRs = articleService.modify(opArticle.get(), modifyRequest.getSubject(), modifyRequest.getContent());
 
         return RsData.of(
                 modifyRs.getResultCode(),
                 modifyRs.getMsg(),
                 new ModifyResponse((modifyRs.getData()))
+        );
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class RemoveResponse {
+        private final Article article;
+    }
+
+    @DeleteMapping("/{id}")
+    public RsData<RemoveResponse> remove(@PathVariable("id") Long id) {
+        Optional<Article> opArticle = articleService.findById(id);
+
+        if ( opArticle.isEmpty() ) return RsData.of(
+                "F-1",
+                "%d번 게시물은 존재하지 않습니다.".formatted(id)
+        );
+
+        // 회원 권한 체크 canDelete
+        RsData<Article> deleteRs = articleService.delete(id);
+
+        return RsData.of(
+                deleteRs.getResultCode(),
+                deleteRs.getMsg(),
+                new RemoveResponse((deleteRs.getData()))
         );
     }
 }
