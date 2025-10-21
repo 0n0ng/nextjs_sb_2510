@@ -1,23 +1,22 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function ArticleEdit() {
   const params = useParams();
+  const router = useRouter();
   const [article, setArticle] = useState({ subject: "", content: "" });
 
   useEffect(() => {
     fetchArticle();
   }, []);
 
-  const fetchArticle = async () => {
-    const result = await fetch(
-      `http://localhost:8090/api/v1/articles/${params.id}`
-    )
+  const fetchArticle = () => {
+    fetch(`http://localhost:8090/api/v1/articles/${params.id}`)
       .then((result) => result.json())
       .then((result) => setArticle(result.data.article))
-      .catch((err) => console.error(err)); //실패시
+      .catch((err) => console.error(err));
   };
 
   const handleSubmit = async (e) => {
@@ -36,6 +35,7 @@ export default function ArticleEdit() {
 
     if (response.ok) {
       alert("update success");
+      router.push(`/article/${params.id}`);
     } else {
       alert("update fail");
     }
@@ -44,7 +44,6 @@ export default function ArticleEdit() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setArticle({ ...article, [name]: value });
-    // console.log({...article, [name]: value});
   };
 
   return (
@@ -70,12 +69,7 @@ export default function ArticleEdit() {
             value={article.content}
           />
         </label>
-        <br />
-        <label>
-          제목 :
-          <input type="submit" value="수정" onChange={handleChange} />
-          {/* <button type="submit">등록<button>*/}
-        </label>
+        <input type="submit" value="수정" />
       </form>
     </>
   );
