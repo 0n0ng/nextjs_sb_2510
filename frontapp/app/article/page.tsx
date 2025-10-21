@@ -17,6 +17,21 @@ export default function Article() {
     .catch(err => console.error(err));//실패시
   };
 
+  const handleDelete = async (id) => { 
+    const response = await fetch(
+      `http://localhost:8090/api/v1/articles/${id}`,
+       {
+    method: "DELETE",
+    }
+  );
+     if (response.ok) {
+      alert('success');
+      fetchArticles();
+     } else {
+      alert('fail');
+     }
+  }
+
   return (
     <>
     <ArticleForm fetchArticles ={fetchArticles}/>
@@ -30,6 +45,7 @@ export default function Article() {
             {article.id} /
             <Link href={`/article/${article.id}`}>{article.subject}</Link>/
             {article.createdDate}
+            <button onClick={() => handleDelete(article.id)}>삭제</button>
           </li>
         ))}
       </ul>
