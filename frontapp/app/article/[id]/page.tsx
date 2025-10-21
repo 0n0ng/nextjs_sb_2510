@@ -23,6 +23,6 @@ fetch(
   <div>{article.content}</div>
   <div>{article.createdDate}</div>
   <div>{article.modifiedDate}</div>
-  <Link href={`/articles/${params.id}`}></Link>
+  <Link href={`/article/${params.id}/edit`}>수정</Link>
   </>
 }
