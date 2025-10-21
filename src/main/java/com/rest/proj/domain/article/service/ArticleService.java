@@ -2,6 +2,7 @@ package com.rest.proj.domain.article.service;
 
 import com.rest.proj.domain.article.entity.Article;
 import com.rest.proj.domain.article.repository.ArticleRepository;
+import com.rest.proj.domain.member.entity.Member;
 import com.rest.proj.global.rsdata.RsData;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
@@ -26,9 +27,10 @@ public class ArticleService {
      */
     @Transactional // 한 세트로 처리되는 작업의 묶음, 중간에 실패면 모두 실패
     // 없다면 중간중간 빠진 데이터가 db에 저장 될 수 있어 꼬일 수 있다.
-    public RsData<Article> create(String subject, String content) {
+    public RsData<Article> create(Member member, String subject, String content) {
         // Article 객체를 생성합니다.
         Article article = Article.builder()
+                .author(member)
                 .subject(subject)
                 .content(content)
                 .build();

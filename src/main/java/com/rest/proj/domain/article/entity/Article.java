@@ -1,7 +1,9 @@
 package com.rest.proj.domain.article.entity;
 
+import com.rest.proj.domain.member.entity.Member;
 import com.rest.proj.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -13,6 +15,8 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @SuperBuilder // extends(상속) 받으려면 Super사용
 public class Article extends BaseEntity {
+    @ManyToOne
+    private Member author;
     private String subject;
     private String content;
 }
