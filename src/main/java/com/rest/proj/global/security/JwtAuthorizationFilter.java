@@ -2,13 +2,18 @@ package com.rest.proj.global.security;
 
 
 import com.rest.proj.domain.member.service.MemberService;
+import com.rest.proj.global.security.SecurityUser.SecurityUser;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +29,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = "";
+        String accessToken = _getCookie("accessToken");
+
+        // securityUser 가져오기 :
+        SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
+
+        // 인가 처리
+        SecurityContextHolder.getContext().setAuthentication(securityUser.getAuthentication());
 
         // accessToken 검증 or refreshToken 발급
         if (!accessToken.isBlank()) {
@@ -32,5 +43,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String _getCookie(String name) {
+        Cookie[] cookies = req.getCookies();
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals(name))
+                .findFirst()
+                // 쿠키의 값만 꺼내오기
+                .map(Cookie::getValue)
+                // 비어있으면 빈 문자열 반환
+                .orElse("");
     }
 }

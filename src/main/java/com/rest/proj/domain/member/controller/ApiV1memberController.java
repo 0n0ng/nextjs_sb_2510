@@ -3,15 +3,14 @@ package com.rest.proj.domain.member.controller;
 import com.rest.proj.domain.member.dto.MemberDto;
 import com.rest.proj.domain.member.service.MemberService;
 import com.rest.proj.global.rsdata.RsData;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseCookie;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,14 +34,28 @@ public class ApiV1memberController {
     }
 
     @PostMapping("/login")
-    public RsData<LoginResponseBody> login(@Valid @RequestBody LoginRequestBody loginRequestBody){
+    public RsData<LoginResponseBody> login(@Valid @RequestBody LoginRequestBody loginRequestBody, HttpServletResponse resp) {
         // username, password를 통해 accessToken발급
         RsData<MemberService.AuthAndMakeTokensResponseBody> authAndMakeTokensRs = memberService.authAndMakeTokens(loginRequestBody.getUsername(), loginRequestBody.getPassword());
+
+        ResponseCookie cookie = ResponseCookie.from("accessToken", authAndMakeTokensRs.getData().getAccessToken())
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .build();
+
+        resp.addHeader("Set-Cookie", cookie.toString());
 
         return RsData.of(authAndMakeTokensRs.getResultCode(),
                 authAndMakeTokensRs.getMsg(),
                 new LoginResponseBody(new MemberDto(authAndMakeTokensRs.getData().getMember()))
         );
-    }
 
+    }
+    @GetMapping("/me")
+    public String me() {
+        return "내정보";
+    }
 }
+
