@@ -1,8 +1,6 @@
 package com.rest.proj.global.security;
 
-
 import com.rest.proj.domain.member.service.MemberService;
-import com.rest.proj.global.security.SecurityUser.SecurityUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,8 +17,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final HttpServletRequest req;
-    private final HttpServletResponse resp;
     private final MemberService memberService;
+
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
@@ -31,29 +29,25 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         String accessToken = _getCookie("accessToken");
 
-        // securityUser 가져오기 :
-        SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
-
-        // 인가 처리
-        SecurityContextHolder.getContext().setAuthentication(securityUser.getAuthentication());
-
         // accessToken 검증 or refreshToken 발급
         if (!accessToken.isBlank()) {
+            // SecurityUser 가져오기
+            SecurityUser securityUser = memberService.getUserFromAccessToken(accessToken);
 
+            // 인가 처리
+            SecurityContextHolder.getContext().setAuthentication(securityUser.getAuthentication());
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String _getCookie(String name) {
+    private String _getCookie(String name){
         Cookie[] cookies = req.getCookies();
 
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
                 .findFirst()
-                // 쿠키의 값만 꺼내오기
                 .map(Cookie::getValue)
-                // 비어있으면 빈 문자열 반환
                 .orElse("");
     }
 }

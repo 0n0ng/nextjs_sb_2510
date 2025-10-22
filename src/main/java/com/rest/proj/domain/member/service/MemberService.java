@@ -1,11 +1,10 @@
 package com.rest.proj.domain.member.service;
 
-
 import com.rest.proj.domain.member.entity.Member;
 import com.rest.proj.domain.member.repository.MemberRepository;
 import com.rest.proj.global.jwt.JwtProvider;
 import com.rest.proj.global.rsdata.RsData;
-import com.rest.proj.global.security.SecurityUser.SecurityUser;
+import com.rest.proj.global.security.SecurityUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +29,13 @@ public class MemberService {
                 .build();
 
         memberRepository.save(member);
+
         return member;
     }
 
-    // jwt토큰 해석 후 pay~map을 얻는다.
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
+
         long id = (int) payloadBody.get("id");
         String username = (String) payloadBody.get("username");
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -54,14 +54,11 @@ public class MemberService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
-        String accessToken = jwtProvider.genToken(member, 60 * 50 * 5);
+        // 시간 설정 및 토큰 생성
+        String accessToken = jwtProvider.genToken(member, 60 * 60 * 5);
 
-        System.out.println("accessToken: " + accessToken);
+        System.out.println("accessToken : " + accessToken);
 
-        return RsData.of(
-                "200-1",
-                "로그인 성공",
-                new AuthAndMakeTokensResponseBody(member, accessToken)
-        );
+        return RsData.of("200-1", "로그인 성공", new AuthAndMakeTokensResponseBody(member, accessToken));
     }
 }

@@ -1,4 +1,4 @@
-package com.rest.proj.global.security.SecurityUser;
+package com.rest.proj.global.security;
 
 import lombok.Getter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,16 +8,16 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 
-public class SecurityUser  extends User {
+public class SecurityUser extends User {
     @Getter
     private Long id;
 
-    public SecurityUser(Long id, String username, String password, List<GrantedAuthority> authorities){
+    public SecurityUser(Long id, String username, String password, List<GrantedAuthority> authorities) {
         super(username, password, authorities);
         this.id = id;
     }
 
-    public Authentication getAuthentication(){
+    public Authentication getAuthentication() {
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 this,
                 this.getPassword(),
