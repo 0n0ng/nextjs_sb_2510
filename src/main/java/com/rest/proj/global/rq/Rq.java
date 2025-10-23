@@ -17,7 +17,6 @@ import java.util.Optional;
 
 // 요청에 대한 쿠키 등에대한 도우미 객체
 // 스코프 : 요청 들어올때마다 새로운 rq객체 만들어짐
-//
 @Component
 @RequestScope
 @RequiredArgsConstructor
@@ -41,14 +40,14 @@ public class Rq {
     public String getCookie(String name) {
         Cookie[] cookies = req.getCookies();
 
-        return  Arrays.stream(cookies)
+        return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse("");
     }
 
-    public Member getMember () {
+    public Member getMember() {
         if (isLogout()) return null;
         if (member == null) {
             member = entityManager.getReference(Member.class, getUser().getId());
@@ -75,5 +74,18 @@ public class Rq {
 
     private boolean isLogout() {
         return !isLogin();
+    }
+
+    public void removeCrossDomainCookie(String tokenName) {
+        ResponseCookie cookie = ResponseCookie.from(tokenName, null)
+                .path("/")
+                // maxAge 0 즉시 만료, 지워짐(로그아웃)
+                .maxAge(0)
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .build();
+
+        resp.addHeader("Set-Cookie", cookie.toString());
     }
 }

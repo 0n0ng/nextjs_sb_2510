@@ -29,6 +29,7 @@ public class ApiSecurityConfig {
                                 .requestMatchers("/api/*/articles/**").permitAll()
                                 // post 요청으로 들어온것만 받겠따.
                                 .requestMatchers(HttpMethod.POST,"/api/*/members/login").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/api/*/members/logout").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .csrf(
