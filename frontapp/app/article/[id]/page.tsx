@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect} from "react";
 import Link from "next/link";
+import api from "@/app/utils/api";
 
 export default function ArticleDetail() {
   const params = useParams();
@@ -10,13 +11,12 @@ export default function ArticleDetail() {
   const [member, setmember] = useState({});
 
   useEffect(() => {
-fetch(
-      `http://localhost:8090/api/v1/articles/${params.id}`
-    )
-      .then((result) => result.json())
-      .then((result) => setArticle(result.data.article))
-      .catch((err) => console.error(err)); //실패시
-  });
+    api
+    .get(`/articles/${params.id}`)
+    .then((response) => setArticle(response.data.data.article) )
+    .catch((err) => console.log(err));
+    
+  }, []);
   
   return  <>
   <h4>게시판 상세 {params.id}번</h4>

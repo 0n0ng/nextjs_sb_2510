@@ -1,27 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import api from "@/app/utils/api"
 
 export default function Login() {
   const [user, setUser] = useState({ subject: "", content: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const response = await fetch(`http://localhost:8090/api/v1/members/login`, {
-      method: "POST",
-      credentials: "include", // 인증 정보를 함께 보내는 경우 사용(로그인)
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    });
-
-    if (response.ok) {
-      alert("success");
-    } else {
-      alert("fail");
-    }
+    await api.post('/members/login', user);
   };
 
   const handleChange = (e) => {
@@ -30,19 +17,9 @@ export default function Login() {
   };
 
   const handleLogout = async () => {
-    const response = await fetch(
-      "http://localhost:8090/api/v1/members/logout",
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
+    await api.post('/members/logout', user);
 
-    if (response.ok) {
-      alert("success");
-    } else {
-      alert("fail");
-    }
+    response.ok("success")
   };
 
   return (

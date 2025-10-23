@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import api from "@/app/utils/api";
 
 export default function Article() {
   const [articles, setArticles] = useState([]);
@@ -10,99 +11,93 @@ export default function Article() {
     fetchArticles();
   }, []);
 
-  const fetchArticles = async () => {
-    const result = await fetch("http://localhost:8090/api/v1/articles")
-    .then((result) => result.json())
-    .then((result) => setArticles(result.data.articles))
-    .catch(err => console.error(err));//실패시
+  const fetchArticles = () => {
+    api
+      .get("/articles")
+      .then((response) => setArticles(response.data.data.articles))
+      .catch((err) => console.log(err));
   };
 
-  const handleDelete = async (id) => { 
-    const response = await fetch(
-      `http://localhost:8090/api/v1/articles/${id}`,
-       {
-    method: "DELETE",
-    }
-  );
-     if (response.ok) {
-      alert('success');
-      fetchArticles();
-     } else {
-      alert('fail');
-     }
-  }
+  const handleDelete = async (id) => {
+    await api.delete(`/articles/${id}`).then(() => fetchArticles());
+  };
 
   return (
     <>
-    <ArticleForm fetchArticles ={fetchArticles}/>
-    <h4>번호 / 제목 / 생성일</h4>
-    {articles.length == 0? (
+      <ArticleForm fetchArticles={fetchArticles} />
+
+      <h4>번호 / 제목 / 생성일</h4>
+      {articles.length == 0 ? (
         <p>현재 게시물이 없습니다.</p>
-    ) : (
+      ) : (
         <ul>
-        {articles.map((article) => (
-          <li key={article.id}>
-            {article.id} /
-            <Link href={`/article/${article.id}`}>{article.subject}</Link>/
-            {article.createdDate}
-            <button onClick={() => handleDelete(article.id)}>삭제</button>
-          </li>
-        ))}
-      </ul>
-    )}
+          {articles.map((article) => (
+            <li key={article.id}>
+              {article.id} /
+              <Link href={`/article/${article.id}`}>{article.subject}</Link> /
+              {article.createdDate}
+              <button onClick={() => handleDelete(article.id)}>삭제</button>
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }
 
-function ArticleForm({fetchArticles}) {
-  const [article, setArticle] = useState({subject: "", content: ""});
+function ArticleForm({ fetchArticles }) {
+  const [article, setArticle] = useState({ subject: "", content: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:8090/api/v1/articles", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(article),
-    });
-
-    if (response.ok) {
-      alert("success");
-      fetchArticles();
-      setArticle({ subject: "", content: ""});
-    } else {
-      alert("fail");
-   }
-  }
+    await api
+      .post("/articles", article)
+      .then(function (res) {
+        alert("success");
+        fetchArticles();
+        setArticle({ subject: "", content: "" });
+      })
+      .catch(function (err) {
+        alert("fail");
+      });
+  };
 
   const handleChange = (e) => {
-    const {name, value} = e.target;
-    setArticle({...article, [name]: value});
-    // console.log({...article, [name]: value});
-  }
+    const { name, value } = e.target;
+    setArticle({ ...article, [name]: value });
+  };
 
   return (
-  <>
-    <h4>게시물 작성</h4>
-    <form onSubmit={handleSubmit}>
-    <label>
-      제목 :
-      <input type="text" name="subject" onChange={handleChange} value={article.subject}/>
-    </label>
-    <br />
+    <>
+      <h4>게시물 작성</h4>
+      <form onSubmit={handleSubmit}>
         <label>
-      내용 :
-      <input type="text" name="content" onChange={handleChange} value={article.content}/>
-    </label>
-    <br />
+          제목 :
+          <input
+            type="text"
+            name="subject"
+            onChange={handleChange}
+            value={article.subject}
+          />
+        </label>
+        <br />
         <label>
-      제목 :
-      <input type="submit" value="등록" onChange={handleChange}/>
-      {/* <button type="submit">등록<button>*/}
-    </label>
-    </form>
-  </>
-  )
+          내용 :
+          <input
+            type="text"
+            name="content"
+            onChange={handleChange}
+            value={article.content}
+          />
+        </label>
+        <br />
+        <label>
+          제목 :
+          <input type="submit" value="등록" onChange={handleChange} />
+          {/* <button type="submit">등록<button>*/}
+        </label>
+      </form>
+    </>
+  );
 }
