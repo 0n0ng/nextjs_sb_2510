@@ -1,6 +1,7 @@
 package com.rest.proj.domain.member.controller;
 
 import com.rest.proj.domain.member.dto.MemberDto;
+import com.rest.proj.domain.member.entity.Member;
 import com.rest.proj.domain.member.service.MemberService;
 import com.rest.proj.global.rq.Rq;
 import com.rest.proj.global.rsdata.RsData;
@@ -29,7 +30,7 @@ public class ApiV1memberController {
     @Getter
     @AllArgsConstructor
     public static class LoginResponseBody {
-        private MemberDto memberDto;
+        private MemberDto member;
     }
 
     @PostMapping("/login")
@@ -43,9 +44,21 @@ public class ApiV1memberController {
         return RsData.of(authAndMakeTokensRs.getResultCode(), authAndMakeTokensRs.getMsg(), new LoginResponseBody(new MemberDto(authAndMakeTokensRs.getData().getMember())));
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class MemberResponseBody {
+        private final MemberDto member;
+    }
+
     @GetMapping("/me")
-    public String me() {
-        return "내 정보";
+    public RsData<MemberResponseBody> me() {
+        Member member = rq.getMember();
+
+        return RsData.of(
+                "200",
+                "내 정보 조회 성공",
+                new MemberResponseBody(new MemberDto(member))
+        );
     }
 
     @PostMapping("/logout")

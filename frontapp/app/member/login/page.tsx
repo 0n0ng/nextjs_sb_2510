@@ -1,14 +1,23 @@
 "use client";
 
+import api from "@/app/utils/api";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import api from "@/app/utils/api"
 
 export default function Login() {
-  const [user, setUser] = useState({ subject: "", content: "" });
+  const [user, setUser] = useState({ username: "", password: "" });
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.post('/members/login', user);
+    await api
+      .post("/members/login", user)
+      .then(() => {
+        alert("로그인 되었습니다");
+        // router.push("/");
+        router.back();
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleChange = (e) => {
@@ -17,9 +26,13 @@ export default function Login() {
   };
 
   const handleLogout = async () => {
-    await api.post('/members/logout', user);
-
-    response.ok("success")
+    await api
+      .post("/members/logout")
+      .then(() => {
+        alert("로그아웃 되었습니다");
+        router.push("/");
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -33,14 +46,14 @@ export default function Login() {
           placeholder="아이디"
         />
         <input
-          type="text"
+          type="password"
           name="password"
           onChange={handleChange}
           placeholder="비밀번호"
         />
-
-        <input type="submit" value="로그인" onChange={handleChange} />
+        <input type="submit" value="로그인" />
       </form>
+
       <button onClick={handleLogout}>로그아웃</button>
     </>
   );

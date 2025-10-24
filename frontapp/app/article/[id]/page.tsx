@@ -8,7 +8,6 @@ import api from "@/app/utils/api";
 export default function ArticleDetail() {
   const params = useParams();
   const [article, setArticle] = useState({});
-  const [member, setmember] = useState({});
 
   useEffect(() => {
     api
