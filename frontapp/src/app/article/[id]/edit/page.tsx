@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import api from '@/app/utils/api'
+import api from '@/src/utils/api'
 
 export default function ArticleEdit() {
   const params = useParams()
